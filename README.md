@@ -5,9 +5,9 @@ application up and running.
 
 Things you may want to cover:
 
-* Ruby version
+* Ruby version 3.3.1
 
-* System dependencies
+* System dependencies >> bundle install >> rake db::migrate >> rake db::seed
 
 * Configuration
 
