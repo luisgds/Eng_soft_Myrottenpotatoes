@@ -1,0 +1,253 @@
+wsl2/ Ubuntu
+
+-- sudo apt upgrade
+-- sudo apt update
+
+--
+
+ruby and rails
+-------------------------------------------------------------------------------------------
+SEGUIR A ORDEM
+
+--rails new app --------- criar novo app
+
+-- cd app/
+-------------------------------------------------------------------------------------------
+ruby 2.7 rails 5.0.0 
+sqlite 3 ------ colocar no gem file       gem 'sqlite3', '~> 1.3.0'
+-------------------------------------------------------------------------------------------
+-- bundle install --------- instalar as gemas do gemfile
+
+-- nome do arquivo da model tem que ser em lower_case e seguindo o nome principal ex: Movie -> movie.rb
+
+-- nome do arquivo da database tem que ser em lower_case e plural ex: CodigoConta -> codigo_contas
+
+-- Para Criar uma base de dados ex: rails generate migration create_movies
+
+-------------------------------------------------------------------------------------------
+
+-- coloque no movie.rb que fica na model
+
+class Movie < ActiveRecord :: Base
+end
+
+-------------------------------------------------------------------------------------------
+
+-- no "dataagora".create_movies.rb
+
+ class CreateMovies < ActiveRecord :: Migration
+  def change
+  create_table 'movies ' do |t |
+  t. string 'title '
+  t. string 'rating '
+  t. text ' description '
+  t. datetime ' release_date '
+  # Add fields that let Rails automatically keep track
+  # of when movies are added or modified :
+   t. timestamps
+   end
+   end
+   end
+
+-------------------------------------------------------------------------------------------
+-- na seeds.rb 
+
+movies = [{:title => 'Aladdin', :rating => 'G', :release_date => '25-Nov-1992'},
+    	  {:title => 'The Terminator', :rating => 'R', :release_date => '26-Oct-1984'},
+    	  {:title => 'When Harry Met Sally', :rating => 'R', :release_date => '21-Jul-1989'},
+      	  {:title => 'The Help', :rating => 'PG-13', :release_date => '10-Aug-2011'},
+      	  {:title => 'Chocolat', :rating => 'PG-13', :release_date => '5-Jan-2001'},
+      	  {:title => 'Amelie', :rating => 'R', :release_date => '25-Apr-2001'},
+      	  {:title => '2001: A Space Odyssey', :rating => 'G', :release_date => '6-Apr-1968'},
+      	  {:title => 'The Incredibles', :rating => 'PG', :release_date => '5-Nov-2004'},
+      	  {:title => 'Raiders of the Lost Ark', :rating => 'PG', :release_date => '12-Jun-1981'},
+      	  {:title => 'Chicken Run', :rating => 'G', :release_date => '21-Jun-2000'},
+  	 ]
+
+movies.each do |movie|
+  Movie.create!(movie)
+end
+
+
+-------------------------------------------------------------------------------------------
+-- rake db:migrate
+-- rake db:seed
+
+-- em routes.rb coloque dentro da classe  :  resources :movies
+ficando
+
+Rails.application.routes.draw do
+  get "up" => "rails/health#show", as: :rails_health_check
+  resources :movies
+  root :to => redirect('/movies')
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+end
+
+
+-------------------------------------------------------------------------------------------
+# This file is app/controllers/movies_controller.rb
+class MoviesController < ApplicationController
+  def index
+    @movies = Movie.all
+  end
+  def show
+    id = params[:id]            # retrieve movie ID from URI route
+    @movie = Movie.find(id)     # look up movie by unique ID
+  end
+end
+-------------------------------------------------------------------------------------------
+
+
+- nome do arquivo da views acompanha com os metodos da controller
+arquivos de layouts ex: o arquivo de estilos fica em views/layouts/application.html.erb
+arquivos de definiçao ex: o arquivo de formulario fica em views/movies/show.html.erb
+ex: application.html.erb
+
+    show.html.erb
+    index.html.erb
+    edit.html.erb
+    new.html.erb
+
+-- na controller tem que ter o arquivo movies_controller.rb Your app’s controllers all inherit from your
+app’s root controller ApplicationController (in app/controllers/
+application_controller.rb)        turn inherits from ActionController::Base.
+
+-------------------------------------------------------------------------------------------
+na show 
+
+<h1>Details about <%= @movie.title %></h1>
+
+<div id="metadata">
+  <ul id="details">
+    <li> Rating: <%= @movie.rating %> </li>
+    <li> Released on: <%= @movie.release_date.strftime('%F') %> </li>
+  </ul>
+</div>
+
+<div id="description">
+  <h2>Description:</h2>
+  <p> <%= @movie.description %> </p>
+</div>
+
+<%= link_to 'Edit this movie', edit_movie_path(@movie), :class => 'btn' %>
+<%= link_to 'Back to movie list', movies_path, :class => 'btn btn-primary' %>
+
+-------------------------------------------------------------------------------------------
+na index 
+
+<h1>All Movies</h1>
+
+<%= link_to 'Add Movie', new_movie_path, :class => 'btn btn-primary' %>
+
+<div id="movies">
+  <div class="row">
+    <div class="col-8">Movie Title</div>
+    <div class="col-2">Rating</div>
+    <div class="col-2">Release Date</div>
+  </div>
+  <%- @movies.each do |movie| %>
+    <div class="row">
+      <div class="col-8"> <%= link_to movie.title, movie_path(movie) %> </div>
+      <div class="col-2"> <%= movie.rating %></div>
+      <div class="col-2"> <%= movie.release_date.strftime('%F') %> </div>
+    </div>
+  <% end %>
+</div>
+
+-------------------------------------------------------------------------------------------
+e por agora a application.hmtl.erb
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title> RottenPotatoes! </title>
+    <link rel="stylesheet" href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
+    <%= javascript_include_tag :application %>
+    <%= csrf_meta_tags %>
+  </head>
+  <body>
+    <div class="container">
+      <%- if flash[:notice] %>
+      <div class="alert alert-info text-center"><%=flash[:notice]%></div>
+      <%- elsif flash[:alert] %>
+      <div class="alert alert-danger text-center"><%=flash[:alert]%></div>
+      <% end %>
+      <%= yield %>
+    </div>
+  </body>
+</html>
+
+
+-------------------------------------------------------------------------------------------
+-- para o formulario pode criar um na views chamado new.html.erb
+
+<h2>Create New Movie</h2>
+<%= form_tag movies_path, :method => :post, :class => 'form' do %>
+  <%= label :movie, :title, 'Title', :class => 'form-control' %>
+  <%= text_field :movie, :title, :class => 'form-control' %>
+  <%= label :movie, :rating, 'Rating', :class => 'form-control' %>
+  <%= select :movie, :rating, ['G','PG','PG-13','R','NC-17'], :class => 'form-control' %>
+  <%= label :movie, :release_date, 'Released On' %>
+  <%= date_select :movie, :release_date, :class => 'form-control' %>
+  <%= submit_tag 'Save Changes' %>
+<% end %>
+
+-------------------------------------------------------------------------------------------
+na edit
+
+<h2>Create New Movie</h2>
+<%= form_tag movies_path, :method => :post, :class => 'form' do %>
+  <%= label :movie, :title, 'Title', :class => 'form-control' %>
+  <%= text_field :movie, :title, :class => 'form-control' %>
+  <%= label :movie, :rating, 'Rating', :class => 'form-control' %>
+  <%= select :movie, :rating, ['G','PG','PG-13','R','NC-17'], :class => 'form-control' %>
+  <%= label :movie, :release_date, 'Released On' %>
+  <%= date_select :movie, :release_date, :class => 'form-control' %>
+  <%= submit_tag 'Save Changes' %>
+<% end %>
+
+-------------------------------------------------------------------------------------------
+-- atualize o movies_controller com mais itens
+
+# This file is app/controllers/movies_controller.rb
+class MoviesController < ApplicationController
+ -------------------------- # 'index' and 'show' methods from Section 4.4 omitted for clarity
+  def new
+    @movie = Movie.new
+  end
+  def create
+    if (@movie = Movie.create(movie_params))
+      redirect_to movies_path, :notice => "#{@movie.title} created."
+    else
+      flash[:alert] = "Movie #{@movie.title} could not be created: " +
+        @movie.errors.full_messages.join(",")
+      render 'new'
+    end
+  end
+  def edit
+    @movie = Movie.find params[:id]
+  end
+  def update
+    @movie = Movie.find params[:id]
+    if (@movie.update_attributes(movie_params))
+      redirect_to movie_path(@movie), :notice => "#{@movie.title} updated."
+    else
+      flash[:alert] = "#{@movie.title} could not be updated: " +
+        @movie.errors.full_messages.join(",")
+      render 'edit'
+    end
+  end
+  def destroy
+    @movie = Movie.find(params[:id])
+    @movie.destroy
+    redirect_to movies_path, :notice => "#{@movie.title} deleted."
+  end
+  private
+  def movie_params
+    params.require(:movie)
+    params[:movie].permit(:title,:rating,:release_date)
+  end
+end
+
+
+-- rails s --------- levantar o server 
