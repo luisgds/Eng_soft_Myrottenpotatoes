@@ -1,0 +1,26 @@
+ruby --version
+
+rvm install "ruby-x.x.x"
+
+rvm use 3.3.1 --default
+^mais recente
+
+rvm list
+   ruby-2.7.0 [ x86_64 ]
+   ruby-2.7.2 [ x86_64 ]
+   ruby-3.0.0 [ x86_64 ]
+   ruby-3.2.2 [ x86_64 ]
+=* ruby-3.3.1 [ x86_64 ]
+
+# => - current
+# =* - current && default
+#  * - default
+
+
+sqlite3 --version
+
+gem install rails
+
+rvm install "ruby-x.x.x"
+
+rails new app
